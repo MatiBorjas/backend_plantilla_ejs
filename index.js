@@ -11,6 +11,7 @@ app.use('/public', express.static(__dirname + '/public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+//Configuracion del motor
 app.set('view engine', 'ejs');
 
 let productsHC = [
@@ -20,6 +21,36 @@ let productsHC = [
 ];
 
 app.get('/products', (req, res) => {
-  console.log('aqui products');
   res.render('pages/index', { title: 'listado de productos', products: productsHC });
+});
+
+app.get('/products/:id', (req, res) => {
+  const { id } = req.params
+  try {
+    let productoEncontrado =  productsHC.find(e => e.id == id);
+    
+    if(productoEncontrado){
+    res.render('pages/unProducto', {producto: productoEncontrado, title: 'Detalle del producto'})
+    } else {
+      res.render('pages/noProduct')
+    }
+  } catch (error) {
+    res.json({error});
+  }
+});
+
+app.get('/form', (req, res) => {
+  res.render('pages/formulario');
+});
+
+app.post('/form', (req, res) => {
+  const { body } = req;
+
+  const indice = productsHC.map(elem => elem.id).sort();
+  id = indice[indice.length - 1] + 1 
+  
+  const productoAgregar = {...body, id}
+
+  productsHC.push(productoAgregar);
+  res.render('pages/productoNuevo', { productoNuevo: productoAgregar, title:'Nuevo producto agregado'});
 });
